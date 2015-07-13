@@ -13,6 +13,14 @@
     "mori": "~0.3.2",
     "liveify": "~3.0.0",
     "uglifyify": "~3.0.1",
-    "browserify": "~10.2.4"
+    "browserify": "~10.2.4",
+    "anyify": "~1.0.0",
+    "browserify-livescript": "~0.2.1",
+    "ractive": "~0.7.3",
+    "riotjs": "~1.0.4",
+    "bilby": "0.0.2",
+    "ramda": "~0.15.1",
+    "q": "~1.4.1",
+    "URIjs": "~1.15.2"
   }
 }

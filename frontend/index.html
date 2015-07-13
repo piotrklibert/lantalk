@@ -1,0 +1,75 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <script src="vendor/jquery-2.1.4.js"></script>
+        <script src="vendor/jquery.color.plus-names-2.1.2.js"></script>
+        <script src="vendor/scrollTo.min.js"></script>
+    </head>
+    <body>
+
+        <div class="main container"> </div>
+
+        <script id="tmpl" type='text/ractive'>
+
+            <div class="row options">
+                <div class="col-xs-1"> Nick: </div>
+                <div class="col-xs-4">
+                    <input id="nick" value="{{ nick }}" tabindex="1" />
+                </div>
+
+                <div class="col-xs-offset-3 col-xs-2">
+                    Silent?
+                    <input id="check-input" type="checkbox" checked="{{ silent }}" />
+                </div>
+                <div class="col-xs-2">
+                    <label for="check-input">Debug?</label>
+                    <input id="check-input" type="checkbox" checked="{{ debug }}" />
+                </div>
+
+                {{#is_focused}}
+                <div class="coll-xs-1">
+                    <p style="width: 20px; height: 20px; background: yellow;"/>
+                </div>
+                {{/is_focused}}
+
+            </div>
+
+            <div class="msg-board">
+                {{#items}}
+                <div class="msg-board-message">
+                    <h4 class="msg-board-nick">{{ nick }}:</h4>
+                    <div class="msg-board-text">{{{ text }}}</div>
+                </div>
+                {{/items}}
+            </div>
+            <hr/>
+            <div class="row">
+              <div class="col-xs-8">
+
+                <textarea id="msg-input" on-keyup="maybeEnter" tabindex="2"
+                              value="{{ input }}" placeholder="Type your message..."></textarea>
+              </div>
+              <div class="col-xs-2">
+                <button id="send-button" on-click="send">send</button>
+              </div>
+            </div>
+        </script>
+
+
+        <script src="js/bundle.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+    </body>
+</html>
