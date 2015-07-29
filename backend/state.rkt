@@ -1,9 +1,8 @@
-#lang typed/racket
-
+#lang racket
 (require rackjure/threading)
 
 (provide
- add-messages!
+ add-message!
  get-messages
  debug-enabled?)
 
@@ -13,30 +12,21 @@
 
 ;; GLOBAL STATE
 (define messages-lock (make-semaphore 1))
+(define messages (box null))
 
-(: messages (Boxof (Listof Any)))
-(define messages (box '()))
-
-
-(: format-messages (-> (U Symbol (Listof Any)) (Listof Any) ))
 (define (format-messages [msgs 'current])
-  (reverse (cond
-             [(and (symbol? msgs) (equal? msgs 'current)) (unbox messages)]
-             [msgs (cast msgs (Listof Any))]
-             [else '()])))
+  (when (equal? msgs 'current)
+    (set! msgs (unbox messages)))
+  (reverse msgs))
 
 
 
-;; (define (add-message! msg-data)
-;;   (let*
-;;       ([msgs-list (unbox messages)]
-;;        [new-msgs (cons msg-data msgs-list)])
-;;     (match (box-cas! messages msgs-list new-msgs)
-;;       [#f (add-message! msg-data)]
-;;       [#t #t])))
+(define (add-message! msg-data)
+  (let*
+      ([msgs-list (unbox messages)]
+       [new-msgs (cons msg-data msgs-list)])
+    (match (box-cas! messages msgs-list new-msgs)
+      [#f (add-message! msg-data)]
+      [#t #t])))
 
-(define (add-messages! . msgs)
-  msgs)
-
-(define (get-messages)
-  (messages . ~> . unbox reverse))
+(define (get-messages) (messages . ~> . unbox reverse))
