@@ -1,1 +1,2 @@
-watchify -v  -d -t browserify-livescript -o js/bundle.js js/main.ls
+#! /bin/sh
+watchify -v  -d -t browserify-livescript -o js/bundle.js js/index.ls

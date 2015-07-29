@@ -1,71 +1,66 @@
 #lang racket
-(require json rackjure/threading)
+(require web-server/private/connection-manager)
+
+(require xml)
+(require json)
+(require racket/contract)
+(require json rackjure/threading srfi/26)
 (require web-server/servlet
          web-server/servlet-env
-         web-server/dispatch)
+         web-server/dispatch
+         web-server/private/servlet)
 
 
-;; GLOBAL STATE
-(define *messages* (box null))
+(require "./helpers.rkt")
+(require "./state.rkt")
 
-(define (add-message! msg-data)
-  (let*
-      ([msgs-list (unbox *messages*)]
-       [new-msgs (cons msg-data msgs-list)])
-    (match (box-cas! *messages* msgs-list new-msgs)
-      [#f (add-message! msg-data)]
-      [#t #t])))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require "./modifications-endpoint.rkt")
+(require "./messages-endpoint.rkt")
 
 
-;; GLOBAL DEBUG DATA
-(define (js-bundle-modification-time)
-  (~> "/home/cji/poligon/lanchat/frontend/js/bundle.js"
-    string->path
-    file-or-directory-modify-seconds))
-(define modified-date (js-bundle-modification-time))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define (create-response/text content)
-  (define headers null)
-  (response/full 200 #"OK" (current-seconds)
-    TEXT/HTML-MIME-TYPE headers (list content)))
-
-(define (check-modified r)
-  (define new-date (js-bundle-modification-time))
-  (if (> new-date modified-date)
-      (begin
-        (set! modified-date new-date)
-        #"true")
-      #"false"))
-
-
-;; ENDPOINTS DEFINITIONS
 (define (posts-list req)
   (match (request-method req)
-    [#"GET" (~> *messages* unbox reverse jsexpr->bytes create-response/text)]
-    [#"POST" (begin0
-                 (create-response/text #"OK")
-               (add-message! (~> req
-                               request-post-data/raw
-                               bytes->string/utf-8 string->jsexpr)))]))
+    [#"GET" (check-messages req)]
+    [#"POST" (begin
+               (add-message! (req . ~> . request-post-data/raw bytes->string/utf-8 string->jsexpr))
+               (resp! #"OK"))]))
+
+
+
 
 (define-values (dispatch-function site-url)
   (dispatch-rules
+   ;; url-re     (optional method)       view-name
    [("post") #:method (or "get" "post") posts-list]
-   [("modified") (compose create-response/text
-                          check-modified)]
+   [("modified") (comp-> check-modified resp!)]
    [("") (λ (r)
            (redirect-to "/index.html"))]
-   ;;[else ....]
+   ;;[else ....] - by default it calls the next dispatcher, if there is any
    ))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require web-server/managers/lru)
 
-
-(module+ main
+(define (serve)
   (serve/servlet dispatch-function
     #:launch-browser? #f
     #:servlet-path "" #:servlet-regexp #rx""
     #:listen-ip "0.0.0.0" #:port 8081
     #:extra-files-paths '("/home/cji/poligon/lanchat/frontend/")
-    #:server-root-path "/home/cji/poligon/lanchat/backend/"))
+    #:server-root-path "/home/cji/poligon/lanchat/backend/"
+    #:manager (make-threshold-LRU-manager (lambda (request)
+                                            (response/xexpr
+                                             `(html (head (title "Page Has Expired."))
+                                                    (body (p "Sorry, this page has expired. Please go back.")))))
+                                          120)
+    ))
+
+
+
+(define (serve*)
+  (thread serve))
+
+
+(module+ main
+  (serve))

@@ -8,18 +8,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
+            <!-- Place favicon.ico in the root directory -->
+            <link rel="shortcut icon" href="/favicon.png" />
 
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <script src="vendor/jquery-2.1.4.js"></script>
-        <script src="vendor/jquery.color.plus-names-2.1.2.js"></script>
-        <script src="vendor/scrollTo.min.js"></script>
     </head>
     <body>
 
+        <h1>LanTALK</h1>
         <div class="main container"> </div>
 
         <script id="tmpl" type='text/ractive'>
@@ -38,38 +35,32 @@
                     <label for="check-input">Debug?</label>
                     <input id="check-input" type="checkbox" checked="{{ debug }}" />
                 </div>
-
-                {{#is_focused}}
-                <div class="coll-xs-1">
-                    <p style="width: 20px; height: 20px; background: yellow;"/>
-                </div>
-                {{/is_focused}}
-
             </div>
-
-            <div class="msg-board">
+            <div class="msg-board container">
                 {{#items}}
-                <div class="msg-board-message">
-                    <h4 class="msg-board-nick">{{ nick }}:</h4>
-                    <div class="msg-board-text">{{{ text }}}</div>
+                <div class="msg-board-message container {{nick}}">
+                    <h4 class="msg-board-nick col-xs-1 ">{{ nick }}:</h4>
+                    <div class="msg-board-text col-xs-1" style="margin: 10px;">{{{ time }}}</div>
+                    <div class="msg-board-text col-xs-5" style="text-align: left">{{{ text }}}</div>
                 </div>
                 {{/items}}
             </div>
             <hr/>
             <div class="row">
               <div class="col-xs-8">
-
                 <textarea id="msg-input" on-keyup="maybeEnter" tabindex="2"
                               value="{{ input }}" placeholder="Type your message..."></textarea>
-              </div>
-              <div class="col-xs-2">
-                <button id="send-button" on-click="send">send</button>
+                <button id="send-button" class="btn btn-success btn-lg" on-click="send">send</button>
               </div>
             </div>
         </script>
 
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <script src="vendor/jquery-2.1.4.js"></script>
+        <script src="vendor/jquery.color.plus-names-2.1.2.js"></script>
+        <script src="vendor/scrollTo.min.js"></script>
 
         <script src="js/bundle.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <script src="js/bootstrap.js"></script>
     </body>
 </html>
