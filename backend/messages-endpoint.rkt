@@ -19,23 +19,25 @@
 
     (define new-messages null)
     (define sum 0)
+    (define step 0.2)
 
     (let inner-loop ()
       ;; A simple spin-lock of a kind. This should be rewritten to use some
       ;; kind of event bus/queue.
-      (sleep 0.5)
+      (sleep step)
+      (set! sum (+ sum step))
 
-      (when (debug-enabled?)
-        (displayln
-         (format "~a ~a ~a" req sum new-messages)))
-
-      (set! sum (+ sum 0.5))
       (if (or (> sum 30)                ; there are some timeouts in FF and
                                         ; Chrome for XHR connections, we need to
                                         ; close ours before that happens
               (not (equal? local-messages (get-messages))))
+
           ;; then
-          (set! new-messages (get-messages))
+          (begin
+            ;; should be a logger call instead:
+            (when (debug-enabled?) (pretty-display req))
+            (set! new-messages (get-messages)))
+
           ;; else
           (inner-loop)))
 

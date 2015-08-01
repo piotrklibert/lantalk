@@ -30,9 +30,9 @@
 
 (define-values (dispatch-function site-url)
   (dispatch-rules
-   ;; url-re     (optional method)       view-name
-   [("post") #:method (or "get" "post") posts-list]
-   [("modified") (comp-> check-modified resp!)]
+   ;; url-re        (optional method)       view
+   [("post")     #:method (or "get" "post") posts-list]
+   [("modified")                           (comp-> check-modified resp!)]
    [("") (λ (r)
            (redirect-to "/index.html"))]
    ;;[else ....] - by default it calls the next dispatcher, if there is any
@@ -48,13 +48,7 @@
     #:servlet-path "" #:servlet-regexp #rx""
     #:listen-ip "0.0.0.0" #:port 8081
     #:extra-files-paths '("/home/cji/poligon/lanchat/frontend/")
-    #:server-root-path "/home/cji/poligon/lanchat/backend/"
-    #:manager (make-threshold-LRU-manager (lambda (request)
-                                            (response/xexpr
-                                             `(html (head (title "Page Has Expired."))
-                                                    (body (p "Sorry, this page has expired. Please go back.")))))
-                                          120)
-    ))
+    #:server-root-path "/home/cji/poligon/lanchat/backend/"))
 
 
 
@@ -63,4 +57,5 @@
 
 
 (module+ main
+  (start-backup-thread!)
   (serve))

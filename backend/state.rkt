@@ -1,13 +1,15 @@
 #lang racket
+(require racket/fasl)
 (require rackjure/threading)
 
 (provide
+ start-backup-thread!
  add-message!
  get-messages
  debug-enabled?)
 
 
-(define debug-enabled? (make-parameter #f))
+(define debug-enabled? (make-parameter #t))
 
 
 ;; GLOBAL STATE
@@ -30,3 +32,14 @@
       [#t #t])))
 
 (define (get-messages) (messages . ~> . unbox reverse))
+
+(define (start-backup-thread!)
+  (displayln "asdasd")
+  (thread
+   (λ ()
+     (let loop ()
+       (call-with-output-file "/home/cji/omg.log"
+         #:exists 'replace
+         (λ (out) (s-exp->fasl messages out)))
+       (sleep 10)
+       (loop)))))

@@ -26,8 +26,10 @@
 
 
 (define (check-modified r)
-  (if (debug-enabled?)
-      (make-json-response #f)
+  (if (not (debug-enabled?))
+  ;; then
+      (make-json-response #f "")
+  ;; else
       (let
           ([prev (check-times)])
         (send-resp! url (make-json-response #f url))

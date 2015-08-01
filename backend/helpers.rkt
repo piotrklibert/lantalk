@@ -44,7 +44,8 @@
 (define jsresp! (comp-> jsexpr->bytes resp!))
 
 (define make-json-response
-  (comp<-  jsexpr->bytes format-response-dict))
+  (comp<- jsexpr->bytes
+          format-response-dict))
 
 
 (define-syntax-rule (with-semaphore sem . body)
