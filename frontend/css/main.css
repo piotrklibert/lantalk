@@ -1,0 +1,48 @@
+.main {
+    /* width: 960px; */
+    margin: 0 15px 0 15px;
+}
+
+.msg-board {
+    height: 270px;
+    overflow: auto;
+    border: solid black 1px;
+    padding: 0px !important;
+    background-color: rgba(255,255, 255, 30);
+}
+
+.cji {
+    background-color: #CACAE6;
+}
+.sue {
+    background-color: #E0E0FF;
+}
+.msg-board-message {
+    width: 100% !important;
+}
+#msg-input {
+    width: 100%;
+    /* width: 940px; */
+    border: solid black 1px;
+}
+
+#check-input {
+    width:10px;
+}
+
+#nick {
+    margin-bottom: 10px;
+}
+
+#send-button {
+    /* width: 150px; */
+    /* float: right; */
+}
+
+body {
+    background: transparent top left no-repeat url("http://imagesci.com/img/2013/12/black-blue-abstract-wallpaper-3359-hd-wallpapers.jpg") !important;
+}
+
+.options {
+    color: #00b8e6;
+}
