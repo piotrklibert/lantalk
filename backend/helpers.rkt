@@ -10,6 +10,7 @@
 (provide
  resp!
  send-resp!
+ parse-request
  make-json-response
  comp<-
  comp->
@@ -21,11 +22,21 @@
                            ([a (cdr args)])
                    (comp<- a val))))
 
+;; resp! :: any/c -> response?
+;; Convert something to its string representation. Wrap the string with a
+;; response structure and return it.
 (define (resp! val)
   (response/output
    (lambda (output)
      (display val output))))
 
+;; send-resp!
+;; ex:
+;; (send-resp! url
+;;   "something"
+;;   'something)
+;; Will return a result of body block, which needs to be a response instance,
+;; to the client and will suspend execution until the next connection from client.
 (define-syntax-rule (send-resp! cont-id . body)
   (send/suspend
    (lambda (cont-id)
@@ -41,11 +52,16 @@
    'info (hash
           'status "ok")))
 
-(define jsresp! (comp-> jsexpr->bytes resp!))
+(define jsresp!
+  (comp-> jsexpr->bytes resp!))
+
+(define parse-request
+  (comp-> request-post-data/raw         ; get data from request struct
+          bytes->string/utf-8           ; convert data to unicode string
+          string->jsexpr))              ; parse contents of the string as JSON
 
 (define make-json-response
-  (comp<- jsexpr->bytes
-          format-response-dict))
+  (comp<- jsexpr->bytes format-response-dict))
 
 
 (define-syntax-rule (with-semaphore sem . body)

@@ -1,5 +1,6 @@
 #lang racket
 (require racket/fasl)
+(require srfi/26)
 (require rackjure/threading)
 
 (provide
@@ -12,14 +13,18 @@
 (define debug-enabled? (make-parameter #t))
 
 
-;; GLOBAL STATE
-(define messages-lock (make-semaphore 1))
-(define messages (box null))
+;; WARNING: STATE!
 
-(define (format-messages [msgs 'current])
-  (when (equal? msgs 'current)
-    (set! msgs (unbox messages)))
-  (reverse msgs))
+(define messages-lock (make-semaphore 1)) ; not used yet
+
+(define (load-messages)
+  (let ([path "/home/cji/omg.log"])
+    (if (file-exists? path)
+        (call-with-input-file path fasl->s-exp)
+        (box '()))))
+
+
+(define messages (load-messages))
 
 
 
@@ -34,12 +39,12 @@
 (define (get-messages) (messages . ~> . unbox reverse))
 
 (define (start-backup-thread!)
-  (displayln "asdasd")
   (thread
    (λ ()
      (let loop ()
        (call-with-output-file "/home/cji/omg.log"
          #:exists 'replace
-         (λ (out) (s-exp->fasl messages out)))
+
+         (cut s-exp->fasl messages <>))
        (sleep 10)
        (loop)))))

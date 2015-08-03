@@ -1,40 +1,39 @@
 #lang racket
-(require web-server/private/connection-manager)
 
-(require xml)
-(require json)
-(require racket/contract)
-(require json rackjure/threading srfi/26)
-(require web-server/servlet
+(require xml json
+         srfi/26                        ; for cut
+         rackjure/threading             ; ~> as threading macro
+
+         web-server/servlet
          web-server/servlet-env
          web-server/dispatch
          web-server/private/servlet)
 
 
-(require "./helpers.rkt")
-(require "./state.rkt")
+(require "./state.rkt")                 ; add-message! and get-messages
 
-(require "./modifications-endpoint.rkt")
-(require "./messages-endpoint.rkt")
+(require "./messages-endpoint.rkt")     ; check-messages
+(require "./modifications-endpoint.rkt"); check-modified
+
+(require "./helpers.rkt")               ; comp->
 
 
 (define (posts-list req)
   (match (request-method req)
     [#"GET" (check-messages req)]
-    [#"POST" (begin
-               (add-message! (req . ~> . request-post-data/raw bytes->string/utf-8 string->jsexpr))
-               (resp! #"OK"))]))
-
-
+    [#"POST"
+     (begin
+       (add-message! (parse-request req))
+       (resp! #"OK"))]))
 
 
 (define-values (dispatch-function site-url)
   (dispatch-rules
-   ;; url-re        (optional method)       view
-   [("post")     #:method (or "get" "post") posts-list]
+   ;; url-re        method (optional)       view
+   [("post")     #:method (or "get" "post") posts-list] ; TODO: make a second route for get and post reqs
    [("modified")                           (comp-> check-modified resp!)]
-   [("") (λ (r)
-           (redirect-to "/index.html"))]
+   [("")                                   (λ (r)
+                                             (redirect-to "/index.html"))]
    ;;[else ....] - by default it calls the next dispatcher, if there is any
    ))
 
@@ -49,7 +48,6 @@
     #:listen-ip "0.0.0.0" #:port 8081
     #:extra-files-paths '("/home/cji/poligon/lanchat/frontend/")
     #:server-root-path "/home/cji/poligon/lanchat/backend/"))
-
 
 
 (define (serve*)
