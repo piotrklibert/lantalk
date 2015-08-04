@@ -19,7 +19,7 @@
 
 
 (define watched-files
-  (let ([root (cut string-append "/home/cji/poligon/lanchat/" <>)])
+  (let ([root (cut string-append "/home/cji/projects/lanchat/" <>)])
     (list (root "frontend/js/bundle.js")
           (root "frontend/index.html")
           (root "backend/main.rkt"))))

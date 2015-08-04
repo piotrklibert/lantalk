@@ -46,8 +46,8 @@
     #:launch-browser? #f
     #:servlet-path "" #:servlet-regexp #rx""
     #:listen-ip "0.0.0.0" #:port 8081
-    #:extra-files-paths '("/home/cji/poligon/lanchat/frontend/")
-    #:server-root-path "/home/cji/poligon/lanchat/backend/"))
+    #:extra-files-paths '("/home/cji/projects/lanchat/frontend/")
+    #:server-root-path "/home/cji/projects/lanchat/backend/"))
 
 
 (define (serve*)
