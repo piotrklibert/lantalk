@@ -2,12 +2,10 @@
 ### A bacon.js-compatible EventEmitters, or rather EventEmitters builders.
 ###
 
-q = require \q
-qx = require \qajax
-bacon = require \baconjs
-qxJSON = -> qx(it).then(qx.toJSON)
+require! {q, qajax, baconjs}
+qxJSON  = -> qajax(it).then(qajax.toJSON)
 
-# config :: {url: <string>}
+# config :: {url: <string>, ...}
 # checker :: (data -> config -> config)
 # simple_checker :: (data -> unit) -> checker
 simple_checker = (callback) ->
@@ -35,7 +33,7 @@ retry = (url, base ? url) ->
 
 
 
-# meta_checker :: string -> checker -> (config -> promise)
+# meta_checker :: checker -> (config -> promise)
 meta_checker = (callback) ->
     # _checker is going to be called many times with different urls, but it
     # should remember its first url as a "base" for use with `retry`
@@ -44,12 +42,15 @@ meta_checker = (callback) ->
     _checker = ({url}) ->
         unless original-url
             original-url := url
+
         unless url
-            return callback(new bacon.Error("No URL provided!"))
+            return callback(new baconjs.Error("No URL provided!"))
 
         retry(url, original-url)
+            # either
             .fail ->
-                callback(new bacon.Error("The server died"))
+                callback(new baconjs.Error("The server died"))
+            # or
             .then (callback _, config)
             .then _checker      # connect again and wait for more data
 

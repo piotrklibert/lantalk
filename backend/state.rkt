@@ -26,14 +26,10 @@
 
 (define messages (box (list)))
 
-
-
 (define (add-message! msg-data)
   (let*
       ([msgs-list (unbox messages)]
        [new-msgs (cons msg-data msgs-list)])
-    ;; (pretty-display msg-data)
-    ;; (displayln (~a msgs-list "\n" new-msgs "\n" messages "imm? " (immutable? messages)))
     (match (box-cas! messages msgs-list new-msgs)
       [#f (add-message! msg-data)]
       [#t #t])))
